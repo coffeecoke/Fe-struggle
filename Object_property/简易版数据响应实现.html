@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>初级版数据响应</title>
+</head>
+<body>
+	
+	<div id="myapp">
+		<input v-model="name"></br>
+		<a href="#" v-bind="name"></a>
+		<span v-bind="name"></span><br>
+	</div>
+	<script type="text/javascript">
+		var data = {
+			name : "zhaoqian",
+		
+		};
+        
+        //(视图改变数据)
+        var models = myapp.querySelectorAll("[v-model]")
+		for(var i=0;i<models.length;i++){
+			models[i].onkeyup = function(){
+				data[this.getAttribute("v-model")] = this.value // 取到input里的值,并把data对象对应得属性值改掉 
+			}
+		}
+
+        //利用defineProperty实现观察者模式,实现(数据改变视图)
+		Object.defineProperty(model,"name",{ //以data中的name属性为例
+		  configurable:false,
+		  get:function(){
+		  	return this.value
+		  },
+		  set:function(newValue){
+            // 以下为数据改变视图
+		  	var binds = myapp.querySelectorAll("[v-bind=name]") //获取属性为v-bind值为'name'的标签,设置html为新值(abc)
+		  	for(var i=0;i<binds.length;i++){
+				binds[i].innerHTML = newValue
+			}
+			var models = myapp.querySelectorAll("[v-model=name]")  //获取属性为v-model值为'name'的input标签,设置value为新值(abc)
+			for(var i=0;i<models.length;i++){
+				models[i].value = newValue
+			}
+		  	this.value = newValue // 目的是为了get取值
+		  }
+		})
+
+        model.message = "abc" // 会触发set 并把abc穿进去
+        console.log( model.message) // abc  思考如果上面get中没有return会打印什么
+        
+
+        //以上为v-model数据双向绑定的基本实现原理,即:视图改变数据,数据改变视图
+	</script>
+</body>
+</html>

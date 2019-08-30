@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        //Object 除了属性外,属性还对应着特性,我们可以对特性进行查看,操作
+        //还可以检测属性的变化,比如vue框架的核心api:defineProperty
+        {
+            //查看特性 -- getOwnPropertyDescriptor
+            // 创建一个对象赵倩,name为'赵倩',年龄为22
+            var zq = {
+                name: '赵倩',
+                age: 22,
+                sex: '女'
+            }
+            //查看对象的name,age特性
+            var name = Object.getOwnPropertyDescriptor(zq, 'name');
+            console.log(name) //{value: 22, writable: true, enumerable: true, configurable: true}
+            // var age = Object.getOwnPropertyDescriptor(zq, 'age');
+            // console.log(age)
+
+        }
+        console.log('end1++++++++++++++++++++++++++++++++++++') 
+        {
+            let zq = {}
+            Object.defineProperty(zq, 'name', {
+                value: '赵倩01', // 不能修改
+
+            })
+            console.log(zq.name)
+            //设置特性 -- defineProperty
+            //Object.defineProperty ('第一个参数','第二个参数','第三个参数')
+            //第一个参数:传入的对象(zq)
+            //第二个参数:需要定义的属性或方法的名字。(name)
+            // 目标属性所拥有的特性--descriptor。（value）
+        }
+
+        console.log('end2+++++++++++++++++++++++++++++++++++++')
+
+        {
+            //descriptor: 属性的6大特性
+            // 1,value：属性的值
+
+            // 2,writable：如果为false，属性的值就不能被重写,只能为只读了
+
+            // 3,configurable：总开关，一旦为false，就不能再设置的1,2,3,4这些特性,要么报错,(writeable一次为true)除外
+
+            // 4,enumerable：是否能在for...in循环中遍历出来或在Object.keys中列举出来。
+
+            // 5,get
+
+            // 6,set
+
+            //1 ,设置属性的值value
+            let zq = {}
+            Object.defineProperty(zq, 'name', {
+                value: '赵倩01', // 不能修改
+                writable: true
+            })
+            console.log(zq.name) //赵倩01
+
+
+            //以上虽然只设置了value,但是会把其他三个默认设置成false,等同于以下代码
+            // Object.defineProperty(zq, 'name', {
+            //     value: '赵倩01', // 不能修改
+            //     writable:false,
+            //     enumerable:false,
+            //     configurable:false    
+            // })
+            zq.name = 'zhaoqian02'
+            console.log(zq.name) // 赵倩01   不会被修改,因为writable被默认设置成了false
+            for (var key in zq) {
+                console.log(key + ":" + zq[key]) //也不会被遍历,因为enumerable被默认设置成了false
+            }
+            // Object.defineProperty(zq, 'name', { // 会报错,因为configurable默认设置成了false
+            //     value: '赵倩02' 
+
+            // })
+            // 但是:
+            // configurable特性为false时，Object.defineProperty不可再修改除writable之外的特性，经过试验，实际情况并非如此，
+            // 此时，若writable原来为true，仍然可以改为true或者false,直到configurable再次被手动设为false；
+            // 但是如果writable原为false，则不可再修改为true或者false
+            Object.defineProperty(zq, 'name', { // 不会报错
+                writable: true // 
+
+            })
+            Object.defineProperty(zq, 'name', { // 不会报错
+                writable: false // 
+
+            })
+            zq.name = '赵倩03'
+            console.log(zq.name)
+            Object.defineProperty(zq, 'name', { // 不会报错
+                writable: false // 
+
+            })
+
+            Object.defineProperty(zq, 'name', { // 不会报错
+                configurable: false
+            })
+            zq.name = '赵倩04'
+            console.log(zq.name) //赵倩04
+            // Object.defineProperty(zq, 'name', { // 报错
+            //     writable: true
+
+            // })
+
+        }
+        {
+            //get ,set 
+            //在 descriptor 中不能同时设置访问器（get 和 set）和 wriable 或 value，否则会错，就是说想用 get 和 set，就不能用 wriable 或 value 中的任何一个。
+            var zq = {}
+            Object.defineProperty(zq, "age", {
+                set: function (newValue) {
+                    console.log("你给我的新年龄"+newValue)
+                },
+                get: function () {
+                    console.log("你想知道我的年龄")
+                    return 22 //注意这里，我硬编码返回22
+                }
+            })
+            zq.age = 26 //打印 你要赋值给我,我的新值是26
+            console.log(zq.age) //打印 你取我的值
+            //打印 22    注意这里，和我的硬编码返回值一样
+
+            // defineProperty 中的set和get 这就是实现 vue发布订阅这模式的的关键 ,当属性值发生变化的时候会触发set(类似与之前的trigger),
+            //我可以通过遍历的方式给vue中data的中的每个属性都添加get,set
+            //这样的话当vue中data的每个属性值发生变化时,我都可以监听的到,然后在set中触发所有注册(listen)过得的对视图进行操作的逻辑
+            // 这也就是我们所说的数据驱动
+        }
+    </script>
+</body>
+
+</html>
